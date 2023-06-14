@@ -6,7 +6,7 @@
 /*   By: rciaze <rciaze@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/02 11:06:29 by rciaze            #+#    #+#             */
-/*   Updated: 2023/02/03 15:49:44 by rciaze           ###   ########.fr       */
+/*   Updated: 2023/06/14 16:16:34 by rciaze           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,12 @@ void	exec(t_struct *my_s, char **envp, int i)
 	char	*final_path;
 	int		j;
 
+	j = -1;
 	if (access(my_s->command[0], F_OK) == 0
 		&& access(my_s->command[0], X_OK) == 0)
 	{
 		if (execve(my_s->command[0], my_s->command, envp))
 		{
-			j = -1;
 			while (++j > my_s->nb_of_pipes)
 				free(my_s->pipe_fd[j]);
 			return (free(my_s->pipe_fd), free(my_s));
@@ -73,7 +73,6 @@ void	exec(t_struct *my_s, char **envp, int i)
 		final_path = ft_strjoin(my_s->paths[i], my_s->command[0]);
 		if (execve(final_path, my_s->command, envp))
 		{
-			j = -1;
 			while (++j > my_s->nb_of_pipes)
 				free(my_s->pipe_fd[j]);
 			return (free(final_path), free(my_s->pipe_fd), free(my_s));
@@ -91,4 +90,14 @@ void	close_all_pipes(t_struct *my_struct)
 		close(my_struct->pipe_fd[i][0]);
 		close(my_struct->pipe_fd[i][1]);
 	}
+}
+
+void	free_child(t_struct *my_struct)
+{
+	int	i;
+
+	i = -1;
+	while (my_struct->command[++i])
+		free(my_struct->command[i]);
+	free(my_struct->command);
 }
